@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>করদাতার ডকুমেন্ট চেকলিস্ট ফরম — আয়কর রিটার্ন</title>
+<style>
+  :root { --ink:#1a1a2e; --muted:#5a5a72; --line:#c9c9d6; --accent:#0f4c81; --soft:#eef3f9; }
+  * { box-sizing: border-box; }
+  body { font-family: "Noto Sans Bengali","SolaimanLipi","Kalpurush",Arial,sans-serif; color: var(--ink); background:#f2f3f7; margin:0; padding:20px; }
+  .toolbar { max-width: 900px; margin: 0 auto 14px; display:flex; gap:10px; align-items:center; justify-content:flex-end; }
+  .toolbar button { background:var(--accent); color:#fff; border:0; padding:10px 18px; border-radius:8px; font-size:15px; cursor:pointer; font-family:inherit; }
+  .toolbar button:hover { background:#0d3f6b; }
+  .page { max-width: 900px; margin: 0 auto; background:#fff; padding:34px 38px; border-radius:10px; box-shadow:0 2px 14px rgba(0,0,0,.08); }
+  h1 { font-size: 21px; text-align:center; margin:0 0 4px; color:var(--accent); }
+  .sub { text-align:center; color:var(--muted); font-size:13px; margin:0 0 16px; }
+  .meta { display:flex; flex-wrap:wrap; gap:10px; border:1px dashed var(--line); background:var(--soft); border-radius:8px; padding:12px 14px; margin-bottom:20px; font-size:13px; }
+  .meta label { display:flex; align-items:center; gap:6px; }
+  .meta input, .meta select { border:0; border-bottom:1px solid #999; background:transparent; font-family:inherit; font-size:13px; padding:2px 4px; min-width:110px; }
+  h2 { font-size:15px; background:var(--accent); color:#fff; padding:7px 12px; border-radius:6px; margin:26px 0 10px; }
+  .warn { background:#fff7e6; border:1px solid #f0d48a; color:#7a5b00; border-radius:8px; padding:10px 14px; font-size:13px; margin-bottom:16px; }
+  .item { display:flex; align-items:flex-start; gap:10px; padding:6px 2px; border-bottom:1px dotted #e2e2ea; font-size:14px; page-break-inside:avoid; }
+  .item input[type=checkbox] { margin-top:3px; width:16px; height:16px; accent-color:var(--accent); flex-shrink:0; }
+  .item b { font-weight:600; }
+  .note { color:var(--muted); font-size:12px; }
+  .grid { display:grid; grid-template-columns:1fr 1fr; gap:0 18px; }
+  table { width:100%; border-collapse:collapse; margin-top:8px; font-size:13px; }
+  th, td { border:1px solid var(--line); padding:6px 8px; text-align:left; }
+  th { background:var(--soft); }
+  .sig { display:flex; flex-wrap:wrap; gap:20px; margin-top:26px; font-size:14px; }
+  .sig div { flex:1; min-width:230px; }
+  .sig .line { border-bottom:1px solid #333; height:28px; }
+  .sig .cap { font-size:12px; color:var(--muted); }
+  .foot { font-size:11.5px; color:var(--muted); border-top:1px solid var(--line); margin-top:26px; padding-top:10px; line-height:1.6; }
+  @media print {
+    body { background:#fff; padding:0; }
+    .toolbar { display:none; }
+    .page { box-shadow:none; border-radius:0; padding:12px 8px; max-width:100%; }
+    h2 { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .item { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="toolbar"><button onclick="window.print()">🖨️ প্রিন্ট / PDF সেভ করুন</button></div>
+
+<div class="page">
+  <h1>করদাতার ডকুমেন্ট সংগ্রহ চেকলিস্ট (ফরম)</h1>
+  <p class="sub">ব্যক্তিগত আয়কর রিটার্ন দাখিল — বিশেষত: প্রবাস থেকে দেশে ফেরত আসা করদাতা</p>
+
+  <div class="warn">⚠️ এটি একটি কাজের চেকলিস্ট — আইনি পরামর্শ নয়। Income Tax Act ২০২৩, Finance Act সংশোধনী ও প্রযোজ্য DTAA অনুযায়ী সর্বশেষ NBR ফরম ও নিয়ম যাচাই করে নিন।</div>
+
+  <div class="meta">
+    <label>করদাতার নাম <input type="text"></label>
+    <label>e-TIN <input type="text"></label>
+    <label>আয়কর বছর <input type="text" placeholder="যেমন: ২০২৫-২৬"></label>
+    <label>দেশে ফেরার তারিখ <input type="text"></label>
+    <label>প্রিপেয়ারের নাম <input type="text"></label>
+  </div>
+
+  <h2>ক. মৌলিক পরিচয় ও নিবন্ধন</h2>
+  <div class="item"><input type="checkbox"><div><b>জাতীয় পরিচয়পত্র (NID)</b> — সামনে-পেছনে পরিষ্কার কপি</div></div>
+  <div class="item"><input type="checkbox"><div><b>পাসপোর্ট</b> — তথ্য পৃষ্ঠা + <b>সব স্ট্যাম্প/ভিসা পৃষ্ঠার কপি</b> <span class="note">(বিদেশ যাওয়া-আসার দিন-গণনার জন্য — খুবই জরুরি)</span></div></div>
+  <div class="item"><input type="checkbox"><div><b>e-TIN সার্টিফিকেট</b> — বর্তমান ও পুরনো (টিন বদলালে)</div></div>
+  <div class="item"><input type="checkbox"><div><b>সর্বশেষ রিটার্নের কপি + রিসিট</b> (IT-10/অ্যাকনলেজমেন্ট) + অ্যাসেসমেন্ট নোটিশ (থাকলে)</div></div>
+  <div class="item"><input type="checkbox"><div><b>জন্ম সনদ / ড্রাইভিং লাইসেন্স</b> — NID না থাকলে</div></div>
+  <div class="item"><input type="checkbox"><div><b>পাসপোর্ট সাইজ ছবি</b> (২ কপি)</div></div>
+  <div class="item"><input type="checkbox"><div><b>যোগাযোগ</b> — মোবাইল, ইমেইল, স্থায়ী+বর্তমান ঠিকানা</div></div>
+  <div class="item"><input type="checkbox"><div><b>রিফান্ডের ব্যাংক অ্যাকাউন্ট তথ্য</b> — অ্যাকাউন্ট নম্বর, ব্যাংক, শাখা</div></div>
+
+  <h2>খ. রেসিডেন্সি নির্ধারণের কাগজ (প্রবাস থেকে ফেরত — সবচেয়ে জরুরি)</h2>
+  <div class="warn">নিয়ম: আয়কর বছরে বাংলাদেশে <b>১৮২ দিন+</b> = রেসিডেন্ট; অথবা বছরে <b>৯০ দিন + আগের ৪ বছরে মোট ৩৬৫ দিন</b>। রেসিডেন্ট হলে বিশ্বব্যাপী আয় করযোগ্য।</div>
+  <div class="item"><input type="checkbox"><div><b>পাসপোর্টের এন্ট্রি/এক্সিট স্ট্যাম্প</b> — বছরের প্রতিটি যাওয়া-আসার তারিখ <span class="note">(দিন-গণনার ছক করুন)</span></div></div>
+  <div class="item"><input type="checkbox"><div><b>বিদেশি চাকরির নিয়োগপত্র/চুক্তিপত্র</b> — শুরুর ও সমাপ্তির তারিখসহ</div></div>
+  <div class="item"><input type="checkbox"><div><b>ভিসা / ওয়ার্ক পারমিট / রেসিডেন্স পারমিট / গ্রিন কার্ড</b> কপি</div></div>
+  <div class="item"><input type="checkbox"><div><b>দেশে ফেরার প্রমাণ</b> — টিকিট / ভিসা স্ট্যাম্প / জয়েনিং লেটার</div></div>
+  <div class="item"><input type="checkbox"><div><b>বর্তমান বাংলাদেশি চাকরির জয়েনিং লেটার</b> (থাকলে)</div></div>
+  <div class="item"><input type="checkbox"><div><b>বিদেশে দাখিল করা ট্যাক্স রিটার্ন</b> — USA: Form 1040 / UK: SA100-SA302 / মধ্যপ্রাচ্য: পে-ট্যাক্স</div></div>
+  <div class="item"><input type="checkbox"><div><b>বিদেশি কর কর্তৃপক্ষের অ্যাসেসমেন্ট/পরিশোধের রসিদ</b> <span class="note">(ফরেন ট্যাক্স ক্রেডিটের জন্য)</span></div></div>
+  <div class="item"><input type="checkbox"><div><b>ট্রাভেল হিস্ট্রির ছক</b> — কোন তারিখে কোথায় ছিলেন (করদাতা দিয়ে পূরণ করান)</div></div>
+
+  <h2>গ. দেশে অর্জিত আয়ের কাগজ</h2>
+  <h3 style="font-size:13px;margin:6px 0 2px;color:var(--accent)">বেতন (বর্তমান চাকরি)</h3>
+  <div class="item"><input type="checkbox"><div>নিয়োগপত্র / অ্যাপয়েন্টমেন্ট লেটার</div></div>
+  <div class="item"><input type="checkbox"><div><b>বেতন বিবরণী (সব মাস)</b> — বুনিয়াদি, বাড়ি ভাড়া, যাতায়াত, মেডিকেল, বোনাস, ওভারটাইম ইত্যাদি</div></div>
+  <div class="item"><input type="checkbox"><div>ব্যাংক স্টেটমেন্ট — বেতন ক্রেডিটের প্রমাণ</div></div>
+  <div class="item"><input type="checkbox"><div><b>উৎসে কর কর্তনের সনদ (TDS/Form-4)</b> — নিয়োগকর্তার কাছ থেকে</div></div>
+  <h3 style="font-size:13px;margin:10px 0 2px;color:var(--accent)">বাড়ি ভাড়া (দেশি সম্পত্তি — প্রবাসে থেকেও করযোগ্য)</h3>
+  <div class="item"><input type="checkbox"><div>ভাড়া চুক্তি (সব প্রপার্টি)</div></div>
+  <div class="item"><input type="checkbox"><div>হোল্ডিং ট্যাক্স / মিউটেশন রিসিট</div></div>
+  <div class="item"><input type="checkbox"><div>ভাড়া জমার ব্যাংক স্টেটমেন্ট / ভাড়াটিয়ার NID</div></div>
+  <div class="item"><input type="checkbox"><div>ইউটিলিটি বিল (ঠিকানা প্রমাণে)</div></div>
+  <h3 style="font-size:13px;margin:10px 0 2px;color:var(--accent)">ব্যবসা / পেশা (থাকলে)</h3>
+  <div class="item"><input type="checkbox"><div>ট্রেড লাইসেন্স + নিবন্ধন কাগজ</div></div>
+  <div class="item"><input type="checkbox"><div>আয়-ব্যয়ের হিসাব / প্রফিট-লস স্টেটমেন্ট</div></div>
+  <div class="item"><input type="checkbox"><div>ব্যবসায়িক ব্যাংক স্টেটমেন্ট</div></div>
+  <h3 style="font-size:13px;margin:10px 0 2px;color:var(--accent)">সুদ, সঞ্চয়, বিনিয়োগ ও মূলধনী আয়</h3>
+  <div class="item"><input type="checkbox"><div>FDR/সঞ্চয়পত্রের সুদের ব্যাংক সার্টিফিকেট + TDS সার্টিফিকেট</div></div>
+  <div class="item"><input type="checkbox"><div>সঞ্চয়পত্র (NSD) সার্টিফিকেটের কপি</div></div>
+  <div class="item"><input type="checkbox"><div>শেয়ার ডিভিডেন্ড ওয়ারেন্ট / BO স্টেটমেন্ট / মিউচুয়াল-ICB স্টেটমেন্ট</div></div>
+  <div class="item"><input type="checkbox"><div>সম্পত্তি/শেয়ার বিক্রির দলিল-কন্ট্রাক্ট নোট (ক্যাপিটাল গেইন থাকলে)</div></div>
+
+  <h2>ঘ. বিদেশে অর্জিত আয়ের কাগজ (ফরেন ট্যাক্স ক্রেডিটের জন্য)</h2>
+  <div class="item"><input type="checkbox"><div><b>বিদেশি বেতন স্লিপ (পে-স্লিপ)</b> — প্রবাসের প্রতিটি মাস</div></div>
+  <div class="item"><input type="checkbox"><div>বিদেশি <b>W-2 / Form 16 / পে-ট্যাক্স / সার্ভিস লেটার</b></div></div>
+  <div class="item"><input type="checkbox"><div>বিদেশি চাকরির চুক্তিপত্র ও পুনর্নবীকরণ চিঠি</div></div>
+  <div class="item"><input type="checkbox"><div><b>বিদেশি কর পরিশোধের সনদ</b> — ডাবল ট্যাক্স রিলিফ/ক্রেডিট দাবির জন্য</div></div>
+  <div class="item"><input type="checkbox"><div>বিদেশি ব্যাংক অ্যাকাউন্টের স্টেটমেন্ট (সারা বছর) + ব্যালেন্স সার্টিফিকেট</div></div>
+  <div class="item"><input type="checkbox"><div>বিদেশি পেনশন/রিটায়ারমেন্ট/সিকিউরিটিজ অ্যাকাউন্ট স্টেটমেন্ট</div></div>
+  <div class="item"><input type="checkbox"><div>বিদেশি সম্পত্তি/বিনিয়োগের কাগজ (থাকলে)</div></div>
+  <div class="item"><input type="checkbox"><div><b>বিদেশ থেকে বাংলাদেশে রেমিট্যান্সের ব্যাংক স্টেটমেন্ট / এনক্যাশমেন্ট সার্টিফিকেট</b></div></div>
+  <div class="item"><input type="checkbox"><div>প্রয়োজনে TRC (ট্যাক্স রেসিডেন্সি সার্টিফিকেট) আবেদনের কাগজ</div></div>
+
+  <h2>ঙ. কর রিবেট / ছাড়ের কাগজ (বিনিয়োগ)</h2>
+  <div class="grid">
+    <div>
+      <div class="item"><input type="checkbox"><div>জীবন বীমা প্রিমিয়ামের রসিদ (সব পলিসি)</div></div>
+      <div class="item"><input type="checkbox"><div>DPS (ডিপোজিট পেনশন স্কিম) স্টেটমেন্ট</div></div>
+      <div class="item"><input type="checkbox"><div>সঞ্চয়পত্র ক্রয়ের রসিদ/সার্টিফিকেট</div></div>
+      <div class="item"><input type="checkbox"><div>প্রভিডেন্ট ফান্ড বিবরণী</div></div>
+      <div class="item"><input type="checkbox"><div>শেয়ার/মিউচুয়াল/ICB ক্রয়ের কাগজ + BO স্টেটমেন্ট</div></div>
+    </div>
+    <div>
+      <div class="item"><input type="checkbox"><div>বাড়ি নির্মাণ/জমি/ফ্ল্যাট কেনার রসিদ-দলিল-লোন স্টেটমেন্ট</div></div>
+      <div class="item"><input type="checkbox"><div>সরকারি সিকিউরিটিজ/বন্ড ক্রয়ের কাগজ</div></div>
+      <div class="item"><input type="checkbox"><div>অনুদানের রসিদ (NBR-অনুমোদিত প্রতিষ্ঠান)</div></div>
+      <div class="item"><input type="checkbox"><div>যাকাত পরিশোধের রসিদ (দাবি করলে)</div></div>
+    </div>
+  </div>
+
+  <h2>চ. সম্পদের বিবরণীর কাগজ (ওয়েলথ স্টেটমেন্ট)</h2>
+  <div class="item"><input type="checkbox"><div><b>সব ব্যাংক অ্যাকাউন্টের স্টেটমেন্ট + ব্যালেন্স সার্টিফিকেট</b> — দেশি ও বিদেশি (৩০ জুনের ব্যালেন্সসহ)</div></div>
+  <div class="item"><input type="checkbox"><div>FDR / সঞ্চয়পত্র / মিউচুয়াল / শেয়ার (BO) স্টেটমেন্ট</div></div>
+  <div class="item"><input type="checkbox"><div><b>রিয়েল এস্টেট</b>: দলিল, মিউটেশন, হোল্ডিং ট্যাক্স রিসিট, বাজার মূল্যায়ন</div></div>
+  <div class="item"><input type="checkbox"><div><b>গাড়ি/মোটরসাইকেল</b> — রেজিস্ট্রেশন পেপার</div></div>
+  <div class="item"><input type="checkbox"><div><b>স্বর্ণালংকার</b> — পরিমাণ ও আনুমানিক মূল্যের তালিকা</div></div>
+  <div class="item"><input type="checkbox"><div>দোকান/অংশীদারি/ফিক্সড ডিপোজিটের কাগজ</div></div>
+  <div class="item"><input type="checkbox"><div><b>দায়/লোন</b>: ব্যাংক লোন, ক্রেডিট কার্ড, অন্যান্য পাওনার স্টেটমেন্ট</div></div>
+
+  <h2>ছ. রিটার্ন দাখিল ও অথরাইজেশন</h2>
+  <div class="item"><input type="checkbox"><div><b>করদাতার স্বাক্ষরযুক্ত অথরাইজেশন লেটার</b> (আপনার মাধ্যমে দাখিলের অনুমতি)</div></div>
+  <div class="item"><input type="checkbox"><div><b>e-Return লগইন তথ্য</b> (সম্মতিতে; পাসওয়ার্ড গোপন রাখুন, শেষে বদলানোর পরামর্শ)</div></div>
+  <div class="item"><input type="checkbox"><div><b>OTP পাওয়ার জন্য করদাতার মোবাইল অ্যাক্সেস</b></div></div>
+  <div class="item"><input type="checkbox"><div>দাখিলের পর রিসিট/অ্যাকনলেজমেন্ট কপি করদাতাকে দেওয়া</div></div>
+
+  <h2>ঝ. চূড়ান্ত হিসাব — কিছু বাদ গেল কি না</h2>
+  <table>
+    <tr><th style="width:34px">#</th><th>বিষয়</th><th style="width:70px">আছে (✓)</th><th>মন্তব্য</th></tr>
+    <tr><td>১</td><td>বাংলাদেশে অবস্থানের দিনের হিসাব (পাসপোর্ট)</td><td></td><td></td></tr>
+    <tr><td>২</td><td>দেশি বেতন + TDS সনদ</td><td></td><td></td></tr>
+    <tr><td>৩</td><td>বিদেশি আয় + বিদেশি করের প্রমাণ</td><td></td><td></td></tr>
+    <tr><td>৪</td><td>বাড়ি ভাড়া (দেশি সম্পত্তি)</td><td></td><td></td></tr>
+    <tr><td>৫</td><td>সুদ / সঞ্চয়পত্র / FDR</td><td></td><td></td></tr>
+    <tr><td>৬</td><td>শেয়ার / ডিভিডেন্ড / ক্যাপিটাল গেইন</td><td></td><td></td></tr>
+    <tr><td>৭</td><td>ব্যবসা / পেশা আয়</td><td></td><td></td></tr>
+    <tr><td>৮</td><td>বিনিয়োগ রিবেটের রসিদ</td><td></td><td></td></tr>
+    <tr><td>৯</td><td>সম্পদের বিবরণীর সব কাগজ</td><td></td><td></td></tr>
+    <tr><td>১০</td><td>রিটার্ন দাখিলের অথরাইজেশন</td><td></td><td></td></tr>
+  </table>
+
+  <div class="sig">
+    <div><div class="line"></div><div class="cap">করদাতার স্বাক্ষর ও তারিখ</div></div>
+    <div><div class="line"></div><div class="cap">প্রিপেয়ার/পরামর্শকের স্বাক্ষর ও তারিখ</div></div>
+  </div>
+
+  <div class="foot">
+    <b>মনে রাখবেন:</b> ১) রেসিডেন্সি ঠিক না হলে পুরো হিসাব ভুল হয় — পাসপোর্ট স্ট্যাম্প ও ট্রাভেল হিস্ট্রি অগ্রাধিকার নিয়ে সংগ্রহ করুন। ২) ফরেন ট্যাক্স ক্রেডিটের সময়সীমা আছে (DTAA অনুযায়ী) — বিদেশি করের সনদ আবশ্যক। ৩) প্রবাসকালেও দেশি সম্পত্তির ভাড়া করযোগ্য। ৪) ব্যক্তিগত তথ্য নিরাপদ রাখুন, করদাতার অনুমতি ছাড়া ব্যবহার করবেন না। ৫) আইন/ফরম প্রতি বছর বদলায় — দাখিলের আগে বর্তমান NBR নিয়ম মিলিয়ে নিন।<br>
+    <i>পরামর্শমূলক চেকলিস্ট — আইনি/করের চূড়ান্ত সিদ্ধান্তের জন্য যোগ্য কর পরামর্শকের শরণাপন্ন হোন।</i>
+  </div>
+</div>
+
+</body>
+</html>
