@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>পুরোনো ফর্মে Auto Fill প্যাচ — demo</title>
+<style>
+  body { font-family: "Noto Sans Bengali", system-ui, "Segoe UI", sans-serif; background: #0b1220; color: #e8eefc; margin: 0; padding: 24px; }
+  .wrap { max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 20px; }
+  p.lead { color: #93a3c4; font-size: 14px; line-height: 1.7; }
+  fieldset { border: 1px solid #243352; border-radius: 12px; padding: 14px 16px; margin: 0 0 16px; background: #121b2e; }
+  legend { font-size: 13px; color: #38bdf8; padding: 0 6px; }
+  label { display: block; font-size: 12px; color: #93a3c4; margin-bottom: 4px; }
+  input, textarea, select { width: 100%; padding: 8px 10px; border-radius: 8px; border: 1px solid #243352; background: #0e1829; color: #e8eefc; font-family: inherit; font-size: 14px; }
+  .g { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 12px; }
+  @media (max-width: 760px) { .g { grid-template-columns: 1fr; } }
+  table { width: 100%; border-collapse: collapse; margin-top: 6px; }
+  th { font-size: 12px; color: #93a3c4; text-align: left; padding: 6px 4px; border-bottom: 1px solid #243352; }
+  td { padding: 4px; }
+  button { background: #38bdf8; color: #06121f; border: 0; border-radius: 9px; padding: 9px 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+  button.ghost { background: transparent; color: #e8eefc; border: 1px solid #243352; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  #out { font-size: 13px; color: #22c55e; min-height: 20px; margin-bottom: 10px; }
+  code { background: #0e1829; border: 1px solid #243352; border-radius: 6px; padding: 1px 5px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🩹 পুরোনো ফর্মে drop-in প্যাচ</h1>
+  <p class="lead">
+    এই ফর্মটার ফিল্ডের নাম ইচ্ছে করে অন্যরকম (<code>pax_full_name</code>, <code>pp_no</code>,
+    টেবিলের ভেতর নামহীন ইনপুট)। <code>autofill-bind.js</code> label/placeholder/টেবিল-হেডার পড়ে
+    নিজেই বুঝে নেয় কোনটা কী — তারপর প্রতিটি তথ্য নিজের ঘরে বসায়। নিচের
+    <b>“ডেমো টিকিট দিয়ে Auto Fill”</b> চাপুন, অথবা আসল PDF দিন।
+  </p>
+
+  <div class="row">
+    <button id="demo">ডেমো টিকিট দিয়ে Auto Fill</button>
+    <label style="flex:1;min-width:220px;margin:0">
+      <input type="file" id="pdfInput" accept=".pdf,image/*" style="padding:6px" />
+    </label>
+    <button class="ghost" id="clear">ক্লিয়ার</button>
+  </div>
+  <div id="out"></div>
+
+  <form>
+    <fieldset><legend>Applicant</legend>
+      <div class="g">
+        <div><label for="pax_full_name">যাত্রীর নাম / Passenger Name</label><input id="pax_full_name" /></div>
+        <div><label for="pp_no">&nbsp;</label><input id="pp_no" placeholder="Passport Number" /></div>
+        <div><label for="nation">Nationality</label><input id="nation" name="nation" /></div>
+        <div><label for="pnr_code">Booking Ref (PNR)</label><input id="pnr_code" name="pnr_code" /></div>
+        <div><label for="tkt">E-Ticket Number</label><input id="tkt" name="tkt" /></div>
+        <div><label for="issued_on">Issue Date</label><input type="date" id="issued_on" name="issued_on" /></div>
+        <div><label for="carrier_name">Airline</label><input id="carrier_name" name="carrier_name" /></div>
+        <div><label for="dest_city">Final Destination</label><input id="dest_city" name="dest_city" /></div>
+        <div><label for="jdate">ভ্রমণের তারিখ</label><input id="jdate" name="jdate" /></div>
+      </div>
+    </fieldset>
+
+    <fieldset><legend>Itinerary</legend>
+      <table id="itinerary">
+        <thead><tr><th>Flight No.</th><th>Date</th><th>Dep Time</th><th>Status</th><th>Route</th></tr></thead>
+        <tbody>
+          <tr><td><input /></td><td><input /></td><td><input /></td><td><input /></td><td><input /></td></tr>
+          <tr><td><input /></td><td><input /></td><td><input /></td><td><input /></td><td><input /></td></tr>
+        </tbody>
+      </table>
+    </fieldset>
+
+    <fieldset><legend>Payment</legend>
+      <div class="g">
+        <div><label for="total_fare">Total Amount</label><input id="total_fare" /></div>
+        <div><label for="base_fare">Base Fare</label><input id="base_fare" /></div>
+        <div><label for="tax_amt">Taxes</label><input id="tax_amt" /></div>
+        <div><label for="bag_allow">Baggage Allowance</label><input id="bag_allow" /></div>
+        <div><label for="cls">Class</label><input id="cls" /></div>
+        <div><label for="cur">Currency</label><input id="cur" /></div>
+      </div>
+    </fieldset>
+
+    <fieldset><legend>পুরোনো বক্স (আর ব্যবহার হয় না)</legend>
+      <label for="imported_info">Imported Ticket Information</label>
+      <textarea id="imported_info" rows="3" placeholder="আগে সব লেখা এখানে জমা হতো — এখন খালিই থাকে"></textarea>
+    </fieldset>
+  </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
+<!-- ↓↓↓ প্যাচ: মাত্র এই দুটো ফাইল ↓↓↓ -->
+<script src="ticket-parser.js"></script>
+<script src="autofill-bind.js"></script>
+<script src="test/samples.js"></script>
+<script>
+  if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
+  var out = document.getElementById('out');
+
+  document.getElementById('demo').addEventListener('click', function () {
+    var r = TicketAutoFill.fill(window.TicketSamples.SAUDIA);
+    out.textContent = '✅ ' + r.inputsFilled + ' টি ইনপুট অটো-ফিল হয়েছে'
+      + (r.unmatched.length ? ' · ম্যাচ হয়নি: ' + r.unmatched.join(', ') : '');
+  });
+
+  // আসল PDF/ছবি: একটি লাইনেই যুক্ত
+  TicketAutoFill.attach(document.getElementById('pdfInput'), {
+    onStart: function (f) { out.textContent = '⏳ ' + f.name + ' পড়ছি…'; },
+    onFill: function (r) { out.textContent = '✅ ' + r.inputsFilled + ' টি ইনপুট অটো-ফিল হয়েছে'; },
+    onError: function (e) { out.textContent = '❌ ' + e.message; }
+  });
+
+  document.getElementById('clear').addEventListener('click', function () {
+    document.querySelectorAll('input, textarea').forEach(function (el) { if (el.type !== 'file') el.value = ''; });
+    out.textContent = '';
+  });
+</script>
+</body>
+</html>

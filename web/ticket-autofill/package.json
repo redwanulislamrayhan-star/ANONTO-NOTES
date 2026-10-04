@@ -1,0 +1,14 @@
+{
+  "name": "ticket-autofill",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Field-by-field e-ticket OCR/PDF Auto Fill parser + drop-in form binder",
+  "main": "ticket-parser.js",
+  "scripts": {
+    "test": "node --test \"test/*.test.js\"",
+    "serve": "python3 -m http.server 8000"
+  },
+  "devDependencies": {
+    "jsdom": "^26.0.0"
+  }
+}

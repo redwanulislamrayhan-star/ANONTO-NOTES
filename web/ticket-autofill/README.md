@@ -29,7 +29,49 @@ python3 -m http.server 8000      # তারপর http://localhost:8000
 PDF হলে pdf.js দিয়ে টেক্সট লেয়ার পড়া হয়; টেক্সট লেয়ার না থাকলে (স্ক্যান করা PDF) বা
 ছবি দিলে Tesseract.js দিয়ে OCR চলে। “ডেমো টিকিট” বাটনে ক্লিক করলে ইন্টারনেট ছাড়াই পরখ করা যায়।
 
-## নিজের অ্যাপে যোগ করা
+## ⭐ নিজের পুরোনো অ্যাপে প্যাচ (সবচেয়ে সহজ)
+
+আপনার ফাইলে ফিল্ডের id/name যা-ই থাকুক, `autofill-bind.js` label/placeholder/
+টেবিল-হেডার পড়ে নিজেই চিনে নেয়। শুধু দুটো `<script>` যোগ করুন:
+
+```html
+<!-- আপনার </body> এর ঠিক আগে -->
+<script src="ticket-parser.js"></script>
+<script src="autofill-bind.js"></script>
+<script>
+  // (ক) আপনার PDF/ছবির ইনপুটে যুক্ত করুন — pdf.js/tesseract.js থাকলে বাকিটা নিজেই হবে
+  TicketAutoFill.attach(document.querySelector('#yourFileInput'), {
+    onFill: r => console.log(r.inputsFilled + ' fields filled', r.result)
+  });
+
+  // (খ) অথবা আপনার বিদ্যমান OCR ফাংশন থেকে পাওয়া লেখা দিন
+  //     — পুরোনো "Imported Ticket Information + Apply" ধাপটা বাদ দিয়ে দিন
+  function onTextExtracted(text) { TicketAutoFill.fill(text); }
+</script>
+```
+
+কোনো ফিল্ড ভুল ঘরে গেলে নিজে ম্যাপ করে দিন (এটা keyword-অনুমানের আগে চলে):
+
+```js
+TicketAutoFill.fill(text, {
+  map: {
+    '#travelDateBox': 'travelDate',
+    '#flight1': 'segments.0.flightNo',
+    '#route1':  'segments.0.route',
+    '#flight2': 'segments.1.flightNo'
+  },
+  overwrite: true,   // false দিলে হাতে লেখা মান মুছবে না
+  scope: document.querySelector('#ticketForm')  // শুধু এই ফর্মের ভেতর
+});
+```
+
+চোখে দেখতে: `legacy-form-demo.html` — ইচ্ছে করে অন্যরকম নামের ফিল্ড ও টেবিল-ভিত্তিক
+itinerary সহ একটা পুরোনো ফর্ম, যেখানে এই প্যাচেই সব ঠিক জায়গায় বসে।
+
+টেকনিক্যাল: `TicketAutoFill.fill()` রিটার্ন করে `{ result, filled, unmatched, inputsFilled }`
+— `unmatched` দেখে বুঝবেন কোন তথ্যের জন্য আপনার ফর্মে ইনপুটই নেই।
+
+## সরাসরি পার্সার ব্যবহার
 
 ```html
 <script src="ticket-parser.js"></script>
@@ -103,8 +145,22 @@ Node/বান্ডলারেও চলে: `const { parseTicket } = require(
 ## টেস্ট
 
 ```bash
-node --test web/ticket-autofill/test/parser.test.js
+cd web/ticket-autofill
+npm test                 # 13 tests
+# binder টেস্টের জন্য (ঐচ্ছিক): npm i -D jsdom
 ```
 
-Saudia (labelled), Biman (GDS console), Emirates (messy OCR), বাংলা সংখ্যা এবং
-“SAR 2390 যেন Date-এ না যায়” — সব কেস কভার করা আছে।
+`parser.test.js` — Saudia (labelled), Biman (GDS console), Emirates (messy OCR),
+বাংলা সংখ্যা, “SAR 2390 যেন Date-এ না যায়”।
+`bind.test.js` — অচেনা ফর্মে drop-in প্যাচ (Bengali label, snake_case id,
+টেবিল itinerary, `Flight No. 1/2` নম্বরওয়ালা লেবেল, পুরোনো Imported বক্স খালি থাকা)।
+
+## ফাইলগুলো
+
+| ফাইল | কাজ |
+|---|---|
+| `ticket-parser.js` | পুরো পার্সিং লজিক (নির্ভরতাহীন, browser + Node) |
+| `autofill-bind.js` | অচেনা ফর্মের ফিল্ড চিনে মান বসানোর drop-in প্যাচ |
+| `index.html`, `app.js` | সম্পূর্ণ রেফারেন্স অ্যাপ (PDF.js + Tesseract + এডিটেবল ফিল্ড) |
+| `legacy-form-demo.html` | পুরোনো ফর্মে প্যাচ কীভাবে কাজ করে তার ডেমো |
+| `test/` | node:test সুইট ও নমুনা টিকিট টেক্সট |
