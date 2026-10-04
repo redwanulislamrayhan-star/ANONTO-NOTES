@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>e-Ticket Auto Fill — Anonto Notes</title>
+<style>
+  :root {
+    --bg: #0b1220;
+    --panel: #121b2e;
+    --panel-2: #172238;
+    --line: #243352;
+    --text: #e8eefc;
+    --muted: #93a3c4;
+    --accent: #38bdf8;
+    --accent-2: #22c55e;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: radial-gradient(1200px 700px at 15% -10%, #16233d 0%, var(--bg) 60%);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  header {
+    padding: 22px 20px 10px;
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 22px; margin: 0 0 6px; letter-spacing: .2px; }
+  header p { margin: 0; color: var(--muted); font-size: 14px; }
+  main { max-width: 1180px; margin: 0 auto; padding: 14px 20px 60px; display: grid; gap: 18px; grid-template-columns: 360px 1fr; align-items: start; }
+  @media (max-width: 940px) { main { grid-template-columns: 1fr; } }
+
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; }
+  .card h2 { font-size: 15px; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+  .card h2 .pill { font-size: 11px; font-weight: 600; color: #0b1220; background: var(--accent); padding: 2px 8px; border-radius: 99px; }
+
+  #drop {
+    border: 1.5px dashed #31436b; border-radius: var(--radius);
+    padding: 24px 16px; text-align: center; cursor: pointer; transition: .18s; background: var(--panel-2);
+  }
+  #drop:hover, #drop.over { border-color: var(--accent); background: #16253f; }
+  #drop .big { font-size: 34px; }
+  #drop p { margin: 8px 0 2px; font-size: 14px; }
+  #drop small { color: var(--muted); }
+
+  textarea, input, select {
+    width: 100%; background: #0e1829; border: 1px solid var(--line); color: var(--text);
+    border-radius: 10px; padding: 9px 11px; font-size: 14px; font-family: inherit;
+  }
+  textarea { min-height: 120px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.5px; }
+  input:focus, textarea:focus, select:focus { outline: 2px solid rgba(56,189,248,.45); outline-offset: 1px; border-color: var(--accent); }
+  label { display: block; font-size: 12px; color: var(--muted); margin: 0 0 5px; letter-spacing: .2px; }
+  .field { margin-bottom: 11px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0 12px; }
+  @media (max-width: 620px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  button {
+    background: var(--accent); color: #06121f; border: 0; border-radius: 10px; padding: 9px 14px;
+    font-weight: 700; font-size: 13px; cursor: pointer; font-family: inherit;
+  }
+  button.ghost { background: transparent; color: var(--text); border: 1px solid var(--line); font-weight: 600; }
+  button.ghost:hover { border-color: var(--accent); color: var(--accent); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .filled { animation: flash 1.1s ease-out; }
+  @keyframes flash { 0% { background: rgba(34,197,94,.35); } 100% { background: #0e1829; } }
+
+  .seg { border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-bottom: 12px; background: var(--panel-2); }
+  .seg .head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .seg .head strong { font-size: 13px; color: var(--accent); }
+  .seg .head button { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 3px 9px; font-size: 12px; }
+
+  #status { font-size: 13px; margin-top: 12px; min-height: 18px; color: var(--muted); }
+  #status.err { color: var(--danger); }
+  #status.ok { color: var(--accent-2); }
+  .bar { height: 5px; background: #0e1829; border-radius: 99px; overflow: hidden; margin-top: 8px; display: none; }
+  .bar.show { display: block; }
+  .bar > i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .25s; }
+
+  details { margin-top: 12px; border-top: 1px solid var(--line); padding-top: 10px; }
+  summary { cursor: pointer; font-size: 13px; color: var(--muted); }
+  summary:hover { color: var(--accent); }
+
+  .warn-box { margin-top: 10px; border: 1px solid rgba(245,158,11,.4); background: rgba(245,158,11,.08); color: #fcd34d; border-radius: 10px; padding: 9px 11px; font-size: 12.5px; display: none; }
+  .warn-box ul { margin: 6px 0 0; padding-left: 18px; }
+  .hint { font-size: 11.5px; color: var(--muted); margin-top: -4px; margin-bottom: 10px; }
+  .foot { color: var(--muted); font-size: 12px; text-align: center; padding: 0 20px 30px; }
+  code { background: #0e1829; border: 1px solid var(--line); border-radius: 6px; padding: 1px 5px; font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>✈️ e-Ticket Auto Fill <span style="font-size:13px;color:var(--muted);font-weight:400">— field-by-field parser</span></h1>
+  <p>PDF বা ছবি দিন — Passenger, Passport, Flight, Date, Time, Route, Fare প্রতিটি তথ্য <b>নিজের ফিল্ডে</b> বসবে। <code>SAR 2390</code> কখনো Date/Flight-এ যাবে না।</p>
+</header>
+
+<main>
+  <!-- ------------------------- LEFT: input ------------------------- -->
+  <section>
+    <div class="card">
+      <h2>১. টিকিট দিন <span class="pill">Auto</span></h2>
+      <div id="drop">
+        <div class="big">📄</div>
+        <p><b>PDF / ছবি</b> এখানে ড্রপ করুন বা ক্লিক করুন</p>
+        <small>.pdf · .png · .jpg · .webp — স্ক্যান করা PDF হলে OCR চলবে</small>
+        <input type="file" id="file" accept=".pdf,image/*" hidden />
+      </div>
+      <div class="bar" id="bar"><i></i></div>
+      <div id="status"></div>
+
+      <div class="row" style="margin-top:12px">
+        <button class="ghost" id="demoBtn">ডেমো টিকিট</button>
+        <button class="ghost" id="pasteBtn">লেখা পেস্ট করি</button>
+        <button class="ghost" id="resetBtn">রিসেট</button>
+      </div>
+
+      <div id="pasteWrap" style="display:none;margin-top:12px">
+        <label for="pasteText">টিকিটের লেখা পেস্ট করুন (তারপর Parse)</label>
+        <textarea id="pasteText" placeholder="Passenger Name : MR. ..."></textarea>
+        <div class="row" style="margin-top:8px"><button id="parsePaste">Parse করুন</button></div>
+      </div>
+
+      <div class="warn-box" id="warnBox"></div>
+
+      <details id="rawWrap">
+        <summary>Raw extracted text (ডিবাগ — ইচ্ছে করলে দেখুন)</summary>
+        <p class="hint" style="margin-top:8px">এই বক্সটা শুধু যাচাইয়ের জন্য। এখান থেকে কিছু “Apply” করতে হয় না — উপরের/পাশের ফিল্ডগুলো আগেই আলাদা করে ভরে গেছে।</p>
+        <textarea id="rawText" spellcheck="false"></textarea>
+        <div class="row" style="margin-top:8px"><button class="ghost" id="reparseBtn">এই লেখা থেকে আবার Parse</button></div>
+      </details>
+    </div>
+  </section>
+
+  <!-- ------------------------- RIGHT: fields ------------------------- -->
+  <section style="display:grid;gap:18px">
+    <div class="card">
+      <h2>২. যাত্রীর তথ্য <span class="pill">Passenger</span></h2>
+      <div class="grid-2">
+        <div class="field"><label for="passengerName">Passenger Name</label><input id="passengerName" data-key="passengerName" placeholder="MR. Mohammad Faysal" /></div>
+        <div class="field"><label for="passportNo">Passport No.</label><input id="passportNo" data-key="passportNo" placeholder="A12345678" /></div>
+        <div class="field"><label for="nationality">Nationality</label><input id="nationality" data-key="nationality" placeholder="Bangladeshi" /></div>
+        <div class="field"><label for="destination">Destination</label><input id="destination" data-key="destination" placeholder="Dhaka (DAC)" /></div>
+      </div>
+      <div class="grid-3">
+        <div class="field"><label for="bookingReference">Booking Reference / PNR</label><input id="bookingReference" data-key="bookingReference" placeholder="XK7Q2M" /></div>
+        <div class="field"><label for="ticketNumber">Ticket Number</label><input id="ticketNumber" data-key="ticketNumber" placeholder="065-1234567890" /></div>
+        <div class="field"><label for="issueDate">Issue Date</label><input id="issueDate" data-key="issueDate" placeholder="2 Oct 2026" /></div>
+      </div>
+      <div class="grid-3">
+        <div class="field"><label for="airline">Airline</label><input id="airline" data-key="airline" placeholder="Saudia" /></div>
+        <div class="field"><label for="travelDate">Travel Date (প্রথম ফ্লাইট)</label><input id="travelDate" data-key="travelDate" placeholder="15 Oct 2026" /></div>
+        <div class="field"><label for="returnDate">Return Date</label><input id="returnDate" data-key="returnDate" placeholder="5 Dec 2026" /></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>৩. ফ্লাইট সেগমেন্ট <span class="pill" id="segCount">0</span></h2>
+      <p class="hint">প্রতিটি লেগ আলাদা কার্ড — Flight No. 1 / Date 1 / Time 1 / Route 1 …</p>
+      <div id="segments"></div>
+      <div class="row"><button class="ghost" id="addSeg">+ সেগমেন্ট যোগ করুন</button></div>
+    </div>
+
+    <div class="card">
+      <h2>৪. ভাড়া ও ব্যাগেজ <span class="pill">Money</span></h2>
+      <div class="grid-3">
+        <div class="field"><label for="currency">Currency</label><input id="currency" data-key="currency" placeholder="SAR" /></div>
+        <div class="field"><label for="totalAmountText">Total Amount</label><input id="totalAmountText" data-key="totalAmountText" placeholder="SAR 2,390" /></div>
+        <div class="field"><label for="baseFare">Base Fare</label><input id="baseFare" data-key="baseFare" placeholder="SAR 1,990" /></div>
+        <div class="field"><label for="taxes">Taxes & Fees</label><input id="taxes" data-key="taxes" placeholder="SAR 400" /></div>
+        <div class="field"><label for="baggage">Baggage</label><input id="baggage" data-key="baggage" placeholder="2 x 23 Kg" /></div>
+        <div class="field"><label for="cabin">Class / Cabin</label><input id="cabin" data-key="cabin" placeholder="Economy" /></div>
+      </div>
+      <div class="row" style="margin-top:6px">
+        <button id="copyJson">JSON কপি</button>
+        <button class="ghost" id="downloadJson">JSON ডাউনলোড</button>
+        <button class="ghost" id="printBtn">প্রিন্ট / PDF</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<p class="foot">পার্সিং লজিক পুরোটাই <code>ticket-parser.js</code>-এ — নিজের অ্যাপে শুধু এই ফাইলটা include করে <code>TicketParser.parseTicket(text)</code> কল করলেই হবে।</p>
+
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
+<script src="ticket-parser.js"></script>
+<script src="test/samples.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
