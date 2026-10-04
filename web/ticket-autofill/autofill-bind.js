@@ -9,7 +9,10 @@
  *   <script src="ticket-parser.js"></script>
  *   <script src="autofill-bind.js"></script>
  *   <script>
- *     // OCR/PDF থেকে পাওয়া লেখা:
+ *     // সবচেয়ে সহজ: কোনো কোড না বদলে পুরো পেজে প্যাচ
+ *     TicketAutoFill.autowire();
+ *
+ *     // অথবা OCR/PDF থেকে পাওয়া লেখা নিজে দিন:
  *     TicketAutoFill.fill(extractedText);
  *
  *     // অথবা নিজের ফাইল-ইনপুট যুক্ত করে দিন (pdf.js / Tesseract থাকলে):
@@ -60,7 +63,7 @@
   // সেগমেন্ট-লেভেল ফিল্ড (Flight 1/2/3 …)
   var SEGMENT_RULES = {
     flightNo: { must: [/flight\s*(no|number|#)/, /\bflt\b/, /\bflight\b/, /ফ্লাইট/], avoid: [/date/, /time/, /status/, /route/] },
-    date: { must: [/date/, /তারিখ/], avoid: [/issue/, /birth/, /expiry/, /return\s*date/] },
+    date: { must: [/date/, /তারিখ/], avoid: [/issue/, /birth/, /expiry/, /travel/, /journey/, /return/, /ভ্রমণ/, /ফেরার/] },
     departureTime: { must: [/dep(arture)?\s*time/, /\btime\b/, /\bdep\b/, /সময়/], avoid: [/arr/, /landing/] },
     arrivalTime: { must: [/arr(ival)?\s*time/, /\barr\b/, /landing/, /পৌঁছ/], avoid: [/dep/] },
     status: { must: [/status/, /\bok\b/, /অবস্থা/], avoid: [] },
@@ -355,9 +358,60 @@
     });
   }
 
+  /**
+   * কোনো কোড না বদলেই পুরো পেজে প্যাচ বসায়:
+   *  1) প্রতিটি PDF/ছবির file input-এ নিজে থেকে যুক্ত হয়
+   *  2) পুরোনো "Imported Ticket Information" জাতীয় বড় textarea-তে লেখা এলেই
+   *     সেটা পার্স করে ফিল্ড ভরে দেয় (আলাদা Apply চাপতে হয় না)
+   *  3) চাইলে ঐ raw বক্সটা আড়ালও করে দেয় (hideRawBox: true)
+   */
+  function autowire(options) {
+    options = options || {};
+    var doc = options.document || (root && root.document);
+    if (!doc) return { fileInputs: 0, textAreas: 0 };
+
+    var fileInputs = Array.prototype.filter.call(doc.querySelectorAll('input[type=file]'), function (el) {
+      var a = (el.getAttribute('accept') || '').toLowerCase();
+      return !a || /pdf|image|\.png|\.jpg|\.jpeg|\.webp/.test(a);
+    });
+    fileInputs.forEach(function (el) {
+      if (el.__ticketAutoFill) return;
+      el.__ticketAutoFill = true;
+      attach(el, options);
+    });
+
+    var areas = Array.prototype.filter.call(doc.querySelectorAll('textarea'), function (t) {
+      return /import|raw|ocr|extract|ticket|paste|scan|তথ্য|লেখা/i.test(haystack(t));
+    });
+    areas.forEach(function (t) {
+      if (t.__ticketAutoFill) return;
+      t.__ticketAutoFill = true;
+      var last = '';
+      var run = function () {
+        var v = t.value || '';
+        if (v.length < 60 || v === last) return;
+        last = v;
+        var out = fill(v, options);
+        if (options.onFill) options.onFill(out);
+      };
+      t.addEventListener('input', run);
+      t.addEventListener('change', run);
+      t.addEventListener('blur', run);
+      if (options.poll !== false && root.setInterval) root.setInterval(run, 900);
+      run();
+      if (options.hideRawBox) {
+        var box = t.closest ? (t.closest('.field, .form-group, label, div') || t) : t;
+        if (box.style) box.style.display = 'none';
+      }
+    });
+
+    return { fileInputs: fileInputs.length, textAreas: areas.length };
+  }
+
   return {
     fill: fill,
     attach: attach,
+    autowire: autowire,
     extractText: extractText,
     // ডিবাগ/কাস্টমাইজের জন্য
     haystack: haystack,

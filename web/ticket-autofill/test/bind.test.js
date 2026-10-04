@@ -113,3 +113,25 @@ test('fare never lands in a date field', { skip: !JSDOM && 'jsdom not installed'
   const dateish = vals.filter(v => /\d{4}-\d{2}-\d{2}|\d{1,2} [A-Z][a-z]{2} \d{4}/.test(v));
   dateish.forEach(v => assert.ok(!/SAR|2390/.test(v), `fare leaked: ${v}`));
 });
+
+test('autowire(): পুরোনো raw textarea-তে লেখা এলেই ফিল্ড ভরে যায়', { skip: !JSDOM && 'jsdom not installed' }, () => {
+  const w = boot(FORM);
+  const r = w.TicketAutoFill.autowire({ poll: false });
+  assert.strictEqual(r.textAreas, 1, 'the imported-info textarea should be wired');
+
+  const ta = w.document.querySelector('#imported_info');
+  ta.value = SAUDIA;                       // পুরোনো কোড যেভাবে ঢালে
+  ta.dispatchEvent(new w.Event('input', { bubbles: true }));
+
+  assert.strictEqual(w.document.querySelector('#pax_full_name').value, 'MR. Mohammad Faysal');
+  assert.strictEqual(w.document.querySelector('#itinerary tbody tr input').value, 'SV804');
+  assert.strictEqual(w.document.querySelector('#total_fare').value, 'SAR 2,390');
+});
+
+test('autowire(): একই ইনপুটে দুইবার যুক্ত হয় না', { skip: !JSDOM && 'jsdom not installed' }, () => {
+  const w = boot(FORM);
+  w.TicketAutoFill.autowire({ poll: false });
+  const second = w.TicketAutoFill.autowire({ poll: false });
+  assert.strictEqual(second.textAreas, 1);   // same element, already flagged
+  assert.ok(w.document.querySelector('#imported_info').__ticketAutoFill);
+});
