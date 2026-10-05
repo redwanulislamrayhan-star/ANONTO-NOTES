@@ -1,0 +1,15 @@
+{
+  "name": "anonto-pdf-import-v3",
+  "version": "3.0.0",
+  "private": true,
+  "description": "PDF Import Engine V3 — section-based airline ticket parser + receipt app (single-file build)",
+  "scripts": {
+    "test": "node test.js",
+    "test:e2e": "node test-e2e.js",
+    "build": "python3 build.py",
+    "samples": "python3 gen_samples.py"
+  },
+  "dependencies": {
+    "pdfjs-dist": "3.11.174"
+  }
+}
